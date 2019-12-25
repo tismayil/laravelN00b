@@ -71,10 +71,10 @@ func main() {
 	|_____\__,_|_|  \__,_| \_/ \___|_|_| \_|\___/ \___/|_.__/ 
     	Laravel .env file checker. ( Scan domain and IP )                                     
 	Host : ` + *hostname + `
-	Sponsored : www.bekchy.com
+	Sponsored by : bekchy.com
 	`)
 
-	addresses, _ := net.LookupIP("www.bekchy.com")
+	addresses, _ := net.LookupIP(*hostname)
 
 	ip := ""
 	for i := 0; i < len(addresses); i++ {
