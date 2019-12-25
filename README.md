@@ -1,9 +1,10 @@
 # laravelN00b
-Incorrect configuration allows you to access .env files. LaravelN00b automated scan .env files in victim host.
+Incorrect configuration allows you to access .env files or reading env variables. LaravelN00b automated scan .env files and checking debug mode in victim host.
 
 ## Scan rationale
 - Scan host.
-- Resolve IP adress and check .env file IP Adress
+- Resolve IP adress and check .env file in IP Adress
+- Checking debug mode Laravel ( Read .env variables )
 
 ## Installation
 
