@@ -21,7 +21,7 @@ Incorrect configuration allows you to access .env files or reading env variables
 
 `go get github.com/briandowns/spinner`
 
-`github.com/christophwitzko/go-curl`
+`go get github.com/christophwitzko/go-curl`
 
 `go run main.go --hostname victim.host`
 
