@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -17,8 +18,6 @@ func sendReq(hostname string) string {
 	if err != nil {
 		return ""
 	}
-	//fmt.Println(str)
-	//fmt.Println(resp.Header["Server"]) // access response header
 	err, _, _ = curl.Bytes(hostname)
 	if err != nil {
 		return ""
@@ -26,16 +25,36 @@ func sendReq(hostname string) string {
 	return str
 }
 
-func envOrNot(response string) bool {
+func otherMethods(hostname string) string {
 
-	envFound := regexp.MustCompile("APP([a-zA-Z_]+)=")
-
-	if len(envFound.FindStringSubmatch(response)) > 0 {
-
-		return true
-
+	cb := func(st curl.IoCopyStat) error {
+		if st.Response != nil {
+		}
+		return nil
 	}
+	_, str, _ := curl.String(
+		hostname, cb, "method=", "POST",
+		"data=", strings.NewReader("{\"asd\": \"test\"}"),
+		"disablecompression=", true,
+		"header=", http.Header{"X-My-Header": {"laravelN00b"}},
+	)
 
+	return str
+}
+
+func envOrNot(response string) bool {
+	envFound := regexp.MustCompile("APP([a-zA-Z_]+)=")
+	if len(envFound.FindStringSubmatch(response)) > 0 {
+		return true
+	}
+	return false
+}
+
+func debugOrNot(response string) bool {
+	debugFound := regexp.MustCompile("APP([a-zA-Z_]+)</td>")
+	if len(debugFound.FindStringSubmatch(response)) > 0 {
+		return true
+	}
 	return false
 }
 
@@ -113,6 +132,30 @@ func main() {
 	} else {
 		s.Restart()
 		fmt.Printf("\033[1;36m%s\033[0m", ".env Found : "+"http://"+*hostname+"/.env \n")
+	}
+
+	s.Restart()
+	fmt.Printf("\033[1;33m%s\033[0m", "--------------------------------------------------------- \n")
+	fmt.Printf("\033[1;33m%s\033[0m", "Checking .env Debug Mode \n")
+
+	denugCheck := debugOrNot(otherMethods("http://" + *hostname))
+
+	if denugCheck == false {
+
+		denugCheck := debugOrNot(otherMethods("https://" + *hostname))
+		if denugCheck == false {
+			s.Restart()
+			fmt.Printf("\033[1;31m%s\033[0m", "Debug mode not active \n")
+		} else {
+			s.Restart()
+			fmt.Printf("\033[1;36m%s\033[0m", "* Laravel Debug Mode Active send POST or PUT and read .env Variables. \n\n")
+			fmt.Printf("\033[1;36m%s\033[0m", "Example curl Command:\ncurl -X POST https://"+*hostname+" | grep APP_\n\n\n")
+		}
+
+	} else {
+		s.Restart()
+		fmt.Printf("\033[1;36m%s\033[0m", "* Laravel Debug Mode Active send POST or PUT and read .env Variables. \n\n")
+		fmt.Printf("\033[1;36m%s\033[0m", "Example curl Command:\ncurl -X POST http://"+*hostname+" | grep APP_\n\n\n")
 	}
 
 	s.Restart()
